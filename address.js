@@ -527,10 +527,13 @@
 
     Addr_Match.number = '(?<number>\\d+-?\\d*)(?=\\D)';
 
+    // Addr_Match.type0 =  `(${Addr_Match.type})(?!.*(${Addr_Match.type}))`;
+    Addr_Match.type0 =  `(?:.*?(${Addr_Match.type})){1}.\K(${Addr_Match.type})`;
+    
     Addr_Match.street = '                                       \n\
       (?:                                                       \n\
         (?:(?<street_0>'+Addr_Match.direct+')\\W+               \n\
-           (?<type_0>'+Addr_Match.type+')\\b                    \n\
+           (?<type_0>'+Addr_Match.type0+')\\b                    \n\
         )                                                       \n\
         |                                                       \n\
         (?:(?<prefix_0>'+Addr_Match.direct+')\\W+)?               \n\
@@ -540,7 +543,6 @@
           |                                                     \n\
           (?<street_2>[^,]+)                                    \n\
           (?:[^\\w,]+(?<type_2>'+Addr_Match.type+')\\b)         \n\
-          (?:[^\\w,]+(?<suffix_2>'+Addr_Match.direct+')\\b)?    \n\
           |                                                     \n\
           (?<street_3>[^,]+?)                                   \n\
           (?:[^\\w,]+(?<type_3>'+Addr_Match.type+')\\b)?        \n\
@@ -644,9 +646,11 @@
       if(['input','index'].indexOf(k) !== -1 || isFinite(k))
         return;
       var key = isFinite(k.split('_').pop())? k.split('_').slice(0,-1).join('_'): k ;
-      if(parts[k])
+      if(parts[k]) {
         parsed[key] = parts[k].trim().replace(/^\s+|\s+$|[^\w\s\-#&]/g, '');
+      }
     });
+
     each(Normalize_Map, function(map,key) {
       if(parsed[key] && map[parsed[key].toLowerCase()]) {
         parsed[key] = map[parsed[key].toLowerCase()];
@@ -665,6 +669,7 @@
           return capitalize(Direction_Code[match.dircode.toUpperCase()]) +' ';
         });
     }
+
     return parsed;
   };
 
